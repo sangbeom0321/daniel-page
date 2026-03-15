@@ -1,3 +1,5 @@
+export const BASE_PATH = "/sangbum-homepage";
+
 export const SITE_CONFIG = {
   name: "Sangbum Woo",
   nameKo: "우상범",
@@ -12,6 +14,7 @@ export const SITE_CONFIG = {
     { label: "Projects", href: "/projects" },
     { label: "CV", href: "/cv" },
     { label: "Blog", href: "/blog" },
+    { label: "AI Papers", href: "/ai_papers_timeline.html" },
   ],
   social: {
     github: "https://github.com/sangbeom0321",

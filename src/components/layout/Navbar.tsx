@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Menu } from "lucide-react";
-import { SITE_CONFIG } from "@/lib/constants";
+import { SITE_CONFIG, BASE_PATH } from "@/lib/constants";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import ThemeToggle from "./ThemeToggle";
 import MobileMenu from "./MobileMenu";
@@ -35,15 +35,19 @@ export default function Navbar() {
           {/* Desktop nav links */}
           <ul className="hidden items-center gap-1 md:flex">
             {SITE_CONFIG.navItems.map((item) => {
-              const isActive =
-                item.href === "/"
+              const isExternal = item.href.endsWith(".html");
+              const isActive = isExternal
+                ? false
+                : item.href === "/"
                   ? pathname === "/"
                   : pathname.startsWith(item.href);
+              const LinkTag = isExternal ? "a" : Link;
 
               return (
                 <li key={item.href}>
-                  <Link
-                    href={item.href}
+                  <LinkTag
+                    href={isExternal ? `${BASE_PATH}${item.href}` : item.href}
+                    {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                     className={`relative px-3 py-2 text-body-sm font-medium transition-colors ${
                       isActive
                         ? "text-[var(--text-primary)]"
@@ -62,7 +66,7 @@ export default function Navbar() {
                         }}
                       />
                     )}
-                  </Link>
+                  </LinkTag>
                 </li>
               );
             })}

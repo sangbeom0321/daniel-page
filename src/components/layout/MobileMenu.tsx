@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { SITE_CONFIG } from "@/lib/constants";
+import { SITE_CONFIG, BASE_PATH } from "@/lib/constants";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -92,16 +92,20 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             {/* Nav links */}
             <ul className="mt-8 flex flex-col gap-1">
               {SITE_CONFIG.navItems.map((item) => {
-                const isActive =
-                  item.href === "/"
+                const isExternal = item.href.endsWith(".html");
+                const isActive = isExternal
+                  ? false
+                  : item.href === "/"
                     ? pathname === "/"
                     : pathname.startsWith(item.href);
+                const LinkTag = isExternal ? "a" : Link;
 
                 return (
                   <motion.li key={item.href} variants={itemVariants}>
-                    <Link
-                      href={item.href}
+                    <LinkTag
+                      href={isExternal ? `${BASE_PATH}${item.href}` : item.href}
                       onClick={onClose}
+                      {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                       className={`block rounded-lg px-4 py-3 text-body-lg font-medium transition-colors ${
                         isActive
                           ? "bg-[var(--accent-muted)] text-[var(--accent)]"
@@ -109,7 +113,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       }`}
                     >
                       {item.label}
-                    </Link>
+                    </LinkTag>
                   </motion.li>
                 );
               })}

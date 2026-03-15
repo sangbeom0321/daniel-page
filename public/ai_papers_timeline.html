@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 핵심 논문 타임라인 (1943-2025)</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0f;color:#e0e0e8;line-height:1.6}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+h1{font-size:28px;font-weight:700;text-align:center;margin:30px 0 8px;background:linear-gradient(135deg,#7c6cf0,#4ecdc4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:#888;font-size:14px;margin-bottom:30px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;align-items:center}
+.search-box{flex:1;min-width:200px;padding:10px 16px;border-radius:8px;border:1px solid #2a2a3a;background:#13131f;color:#e0e0e8;font-size:14px;outline:none}
+.search-box:focus{border-color:#7c6cf0}
+.filter-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.pill{padding:6px 14px;border-radius:20px;font-size:12px;border:1px solid #2a2a3a;background:#13131f;color:#999;cursor:pointer;transition:all .2s;white-space:nowrap}
+.pill:hover{border-color:#555}
+.pill.active{background:#7c6cf0;border-color:#7c6cf0;color:#fff}
+.stats{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.stat-card{background:#13131f;border:1px solid #2a2a3a;border-radius:10px;padding:12px 18px;flex:1;min-width:120px;text-align:center}
+.stat-num{font-size:24px;font-weight:700;color:#7c6cf0}
+.stat-label{font-size:11px;color:#888;margin-top:2px}
+.era-section{margin-bottom:32px}
+.era-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:12px 0;border-bottom:1px solid #1a1a2a}
+.era-dot{width:12px;height:12px;border-radius:50%}
+.era-title{font-size:18px;font-weight:600;color:#ccc}
+.era-desc{font-size:12px;color:#777;margin-left:auto}
+.paper{background:#13131f;border:1px solid #1e1e2e;border-radius:10px;padding:16px;margin-bottom:10px;cursor:pointer;transition:all .3s}
+.paper:hover{border-color:#3a3a5a;transform:translateX(4px)}
+.paper.expanded{border-color:#7c6cf0}
+.paper.lineage-active{border-color:#4ecdc4;background:#0d1a1a;box-shadow:0 0 20px rgba(78,205,196,0.15)}
+.paper.lineage-selected{border-color:#ff6b6b;background:#1a0d0d;box-shadow:0 0 24px rgba(255,107,107,0.2)}
+.paper.lineage-dimmed{opacity:0.15;pointer-events:none}
+.paper-top{display:flex;align-items:flex-start;gap:12px}
+.paper-year{background:#1a1a2e;color:#7c6cf0;font-size:13px;font-weight:700;padding:4px 10px;border-radius:6px;white-space:nowrap;min-width:50px;text-align:center}
+.paper-info{flex:1;min-width:0}
+.paper-title{font-size:15px;font-weight:600;color:#e0e0e8;margin-bottom:4px}
+.paper-authors{font-size:12px;color:#999;margin-bottom:3px}
+.paper-affiliation{font-size:11px;color:#666}
+.paper-cat{font-size:10px;padding:3px 8px;border-radius:10px;display:inline-block;margin-top:4px}
+.paper-detail{display:none;margin-top:14px;padding-top:14px;border-top:1px solid #1e1e2e}
+.paper.expanded .paper-detail{display:block}
+.detail-section{margin-bottom:10px}
+.detail-label{font-size:11px;color:#7c6cf0;font-weight:600;margin-bottom:4px;text-transform:uppercase}
+.detail-text{font-size:13px;color:#bbb;line-height:1.7}
+.paper-link{display:inline-block;margin-top:8px;color:#4ecdc4;font-size:12px;text-decoration:none;border:1px solid #4ecdc4;padding:4px 12px;border-radius:6px}
+.paper-link:hover{background:#4ecdc4;color:#0a0a0f}
+.paper-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.lineage-btn{display:inline-flex;align-items:center;gap:4px;margin-top:8px;color:#ff6b6b;font-size:12px;text-decoration:none;border:1px solid #ff6b6b;padding:4px 12px;border-radius:6px;cursor:pointer;background:transparent;transition:all .2s}
+.lineage-btn:hover{background:#ff6b6b;color:#0a0a0f}
+
+/* Lineage banner */
+.lineage-banner{display:none;margin-bottom:24px;padding:16px 20px;background:linear-gradient(135deg,#1a0d0d,#0d1a1a);border:1px solid #ff6b6b44;border-radius:12px;position:relative}
+.lineage-banner.active{display:block}
+.lineage-banner-title{font-size:15px;font-weight:600;color:#ff6b6b;margin-bottom:6px}
+.lineage-banner-desc{font-size:13px;color:#999;margin-bottom:10px}
+.lineage-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.lineage-flow-item{font-size:12px;padding:4px 10px;border-radius:6px;background:#1e1e2e;color:#4ecdc4;border:1px solid #4ecdc444;cursor:pointer;transition:all .2s}
+.lineage-flow-item:hover{background:#4ecdc4;color:#0a0a0f}
+.lineage-flow-item.selected{background:#ff6b6b22;color:#ff6b6b;border-color:#ff6b6b}
+.lineage-flow-arrow{color:#555;font-size:14px}
+.lineage-close{position:absolute;top:12px;right:14px;background:none;border:1px solid #555;color:#999;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.lineage-close:hover{border-color:#ff6b6b;color:#ff6b6b}
+.lineage-step{font-size:10px;color:#666;margin-right:2px}
+
+.cat-foundations{border-left:3px solid #7c6cf0}.cat-foundations .paper-cat{background:#7c6cf022;color:#7c6cf0;border:1px solid #7c6cf044}
+.cat-optimization{border-left:3px solid #4ecdc4}.cat-optimization .paper-cat{background:#4ecdc422;color:#4ecdc4;border:1px solid #4ecdc444}
+.cat-cnn{border-left:3px solid #f7b731}.cat-cnn .paper-cat{background:#f7b73122;color:#f7b731;border:1px solid #f7b73144}
+.cat-rnn{border-left:3px solid #fc5c65}.cat-rnn .paper-cat{background:#fc5c6522;color:#fc5c65;border:1px solid #fc5c6544}
+.cat-generative{border-left:3px solid #a55eea}.cat-generative .paper-cat{background:#a55eea22;color:#a55eea;border:1px solid #a55eea44}
+.cat-transformer{border-left:3px solid #ff6b6b}.cat-transformer .paper-cat{background:#ff6b6b22;color:#ff6b6b;border:1px solid #ff6b6b44}
+.cat-vision{border-left:3px solid #26de81}.cat-vision .paper-cat{background:#26de8122;color:#26de81;border:1px solid #26de8144}
+.cat-rl{border-left:3px solid #fd9644}.cat-rl .paper-cat{background:#fd964422;color:#fd9644;border:1px solid #fd964444}
+.cat-selfsup{border-left:3px solid #45aaf2}.cat-selfsup .paper-cat{background:#45aaf222;color:#45aaf2;border:1px solid #45aaf244}
+.cat-graph{border-left:3px solid #d1d8e0}.cat-graph .paper-cat{background:#d1d8e022;color:#d1d8e0;border:1px solid #d1d8e044}
+.cat-scaling{border-left:3px solid #f8a5c2}.cat-scaling .paper-cat{background:#f8a5c222;color:#f8a5c2;border:1px solid #f8a5c244}
+.cat-llm{border-left:3px solid #e056c1}.cat-llm .paper-cat{background:#e056c122;color:#e056c1;border:1px solid #e056c144}
+.cat-vla{border-left:3px solid #00d2d3}.cat-vla .paper-cat{background:#00d2d322;color:#00d2d3;border:1px solid #00d2d344}
+.cat-ad{border-left:3px solid #c4e538}.cat-ad .paper-cat{background:#c4e53822;color:#c4e538;border:1px solid #c4e53844}
+.cat-multimodal{border-left:3px solid #ffa502}.cat-multimodal .paper-cat{background:#ffa50222;color:#ffa502;border:1px solid #ffa50244}
+.no-results{text-align:center;padding:40px;color:#666;font-size:14px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;padding:12px;background:#13131f;border-radius:10px;border:1px solid #1e1e2e}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:#888}
+.legend-dot{width:8px;height:8px;border-radius:2px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>AI 핵심 방법론 논문 타임라인</h1>
+<p class="subtitle">1943 ~ 2025 | 방법론적 돌파구를 이룬 핵심 논문들의 흐름</p>
+
+<div class="stats" id="stats"></div>
+
+<div class="controls">
+<input type="text" class="search-box" id="search" placeholder="논문 제목, 저자, 키워드 검색...">
+</div>
+<div class="filter-pills" id="filters"></div>
+<div class="legend" id="legend"></div>
+<div class="lineage-banner" id="lineageBanner">
+  <button class="lineage-close" id="lineageClose">&times;</button>
+  <div class="lineage-banner-title" id="lineageTitle">연구 계보</div>
+  <div class="lineage-banner-desc" id="lineageDesc">이 논문까지 이어진 연구 흐름</div>
+  <div class="lineage-flow" id="lineageFlow"></div>
+</div>
+<div id="timeline"></div>
+</div>
+
+<script>
+const categories = {
+  foundations: {name:"Foundations & Neural Networks",color:"#7c6cf0"},
+  optimization: {name:"Optimization & Training",color:"#4ecdc4"},
+  cnn: {name:"CNN Architectures",color:"#f7b731"},
+  rnn: {name:"RNN & Sequence Models",color:"#fc5c65"},
+  generative: {name:"Generative Models",color:"#a55eea"},
+  transformer: {name:"Attention & Transformers",color:"#ff6b6b"},
+  vision: {name:"Vision Models",color:"#26de81"},
+  rl: {name:"Reinforcement Learning",color:"#fd9644"},
+  selfsup: {name:"Self-Supervised & Representation",color:"#45aaf2"},
+  graph: {name:"Graph Neural Networks",color:"#d1d8e0"},
+  scaling: {name:"Architecture & Scaling",color:"#f8a5c2"},
+  llm: {name:"LLM & Foundation Models",color:"#e056c1"},
+  vla: {name:"VLA & Embodied AI",color:"#00d2d3"},
+  ad: {name:"E2E Autonomous Driving",color:"#c4e538"},
+  multimodal: {name:"Multimodal Models",color:"#ffa502"}
+};
+
+const papers = [
+// ===== Foundations =====
+{id:"mcp43",y:1943,t:"A Logical Calculus of the Ideas Immanent in Nervous Activity",a:"Warren McCulloch, Walter Pitts",af:"U of Illinois, U of Chicago",cat:"foundations",refs:[],
+problem:"생물학적 뉴런의 동작을 수학적으로 모델링할 방법이 없었음",contribution:"최초의 인공 뉴런 수학 모델 (McCulloch-Pitts neuron). 뉴런을 이진 논리 유닛으로 추상화하여 논리 연산이 가능함을 증명",impact:"모든 인공 신경망 연구의 출발점. Perceptron, 현대 딥러닝까지 이어지는 기초",
+link:"https://doi.org/10.1007/BF02478259"},
+
+{id:"perceptron58",y:1958,t:"The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain",a:"Frank Rosenblatt",af:"Cornell Aeronautical Laboratory",cat:"foundations",refs:["mcp43"],
+problem:"McCulloch-Pitts 뉴런은 학습 능력이 없었음",contribution:"최초의 학습 가능한 단층 신경망(Perceptron). 가중치를 자동 업데이트하는 학습 알고리즘 제안",impact:"기계학습의 시작. 그러나 XOR 문제 등 비선형 분류의 한계 존재 → AI 1차 겨울 촉발",
+link:"https://doi.org/10.1037/h0042519"},
+
+{id:"perceptrons69",y:1969,t:"Perceptrons: An Introduction to Computational Geometry",a:"Marvin Minsky, Seymour Papert",af:"MIT",cat:"foundations",refs:["perceptron58"],
+problem:"Perceptron의 실제 능력 범위가 불분명했음",contribution:"단층 Perceptron이 XOR 등 비선형 문제를 풀 수 없음을 수학적으로 증명",impact:"AI 1차 겨울(AI Winter) 촉발. 그러나 다층 네트워크의 필요성을 역설적으로 제시",
+link:"https://mitpress.mit.edu/9780262630221/"},
+
+{id:"neocog79",y:1979,t:"Neocognitron: A Self-organizing Neural Network Model for a Mechanism of Pattern Recognition Unaffected by Shift in Position",a:"Kunihiko Fukushima",af:"NHK Science & Technology Research Laboratories",cat:"foundations",refs:["perceptron58"],
+problem:"위치 변환에 강인한 패턴 인식 모델이 없었음",contribution:"계층적 특징 추출 구조 제안 (S-cell, C-cell). 시각 피질의 단순/복잡 세포 모델링",impact:"CNN의 직접적 전신. LeCun의 LeNet에 결정적 영향",
+link:"https://doi.org/10.1007/BF00344251"},
+
+{id:"hopfield82",y:1982,t:"Neural Networks and Physical Systems with Emergent Collective Computational Abilities",a:"John Hopfield",af:"Caltech",cat:"foundations",refs:["mcp43"],
+problem:"신경망을 에너지 기반으로 해석하는 이론 프레임워크 부재",contribution:"Hopfield Network — 에너지 함수 기반 연상 기억 모델. 물리학(스핀 글래스)과 신경망의 연결",impact:"볼츠만 머신, 에너지 기반 모델의 토대. 2024 노벨 물리학상 수상",
+link:"https://doi.org/10.1073/pnas.79.8.2554"},
+
+{id:"boltzmann85",y:1985,t:"A Learning Algorithm for Boltzmann Machines",a:"David Ackley, Geoffrey Hinton, Terrence Sejnowski",af:"CMU, U of Toronto",cat:"foundations",refs:["hopfield82"],
+problem:"Hopfield Net은 학습이 제한적이고 확률적 모델링이 불가능했음",contribution:"확률적 생성 모델인 볼츠만 머신과 학습 알고리즘 제안. 숨겨진 유닛(hidden units) 개념 도입",impact:"RBM, DBN으로 이어지며 딥러닝 사전학습(pretraining) 시대를 열게 되는 초석",
+link:"https://doi.org/10.1016/S0364-0213(85)80012-4"},
+
+{id:"backprop86",y:1986,t:"Learning Representations by Back-Propagating Errors",a:"David Rumelhart, Geoffrey Hinton, Ronald Williams",af:"UC San Diego, CMU",cat:"foundations",refs:["perceptron58","perceptrons69"],
+problem:"다층 신경망의 가중치를 효율적으로 학습시킬 방법이 없었음",contribution:"오차역전파(Backpropagation) 알고리즘의 실용적 재발견 및 대중화. Chain rule 기반 그래디언트 전파",impact:"현대 딥러닝의 핵심 학습 알고리즘. 사실상 모든 신경망 훈련의 기본 원리",
+link:"https://doi.org/10.1038/323533a0"},
+
+{id:"uat89",y:1989,t:"Approximation by Superpositions of a Sigmoidal Function",a:"George Cybenko",af:"U of Illinois",cat:"foundations",refs:["backprop86"],
+problem:"신경망이 어떤 함수까지 근사 가능한지 이론적 보장이 없었음",contribution:"Universal Approximation Theorem: 충분한 뉴런을 가진 단층 네트워크가 임의의 연속 함수를 근사 가능",impact:"신경망 연구의 이론적 정당성 확보. '왜 신경망이 작동하는가'에 대한 근본적 답변",
+link:"https://doi.org/10.1007/BF02551274"},
+
+{id:"lenet89",y:1989,t:"Backpropagation Applied to Handwritten Zip Code Recognition",a:"Yann LeCun et al.",af:"AT&T Bell Labs",cat:"cnn",refs:["backprop86","neocog79"],
+problem:"필기 인식에 효과적인 자동 특징 추출 방법이 없었음",contribution:"Backpropagation + Convolutional 구조를 결합하여 우편번호 자동 인식. LeNet의 초기 버전",impact:"CNN 실용화의 시작. LeNet-5로 발전하며 시각 인식 혁명의 서막",
+link:"https://doi.org/10.1162/neco.1989.1.4.541"},
+
+// ===== RL Foundations =====
+{id:"qlearn89",y:1989,t:"Learning from Delayed Rewards (Q-Learning)",a:"Christopher Watkins",af:"King's College Cambridge",cat:"rl",refs:[],
+problem:"지연 보상 환경에서 최적 정책을 학습하는 일반적 방법이 없었음",contribution:"Q-Learning: 모델 프리 강화학습 알고리즘. 경험으로부터 행동-가치 함수를 학습",impact:"모든 value-based RL의 기초. DQN, AlphaGo 등으로 이어지는 RL 혁명의 씨앗",
+link:"https://link.springer.com/article/10.1007/BF00992698"},
+
+{id:"reinforce92",y:1992,t:"Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning",a:"Ronald Williams",af:"Northeastern University",cat:"rl",refs:["backprop86"],
+problem:"연속적 행동 공간에서의 RL 학습이 어려웠음",contribution:"REINFORCE 알고리즘: Policy Gradient 방법론의 기초. 직접 정책을 파라미터화하여 학습",impact:"Policy Gradient 계열 모든 알고리즘(A3C, PPO 등)의 원조",
+link:"https://doi.org/10.1007/BF00992696"},
+
+// ===== 1990s =====
+{id:"lstm97",y:1997,t:"Long Short-Term Memory",a:"Sepp Hochreiter, Jürgen Schmidhuber",af:"TU Munich",cat:"rnn",refs:["backprop86"],
+problem:"기존 RNN은 장기 의존성(long-term dependency)을 학습하지 못하는 vanishing gradient 문제",contribution:"LSTM: 게이트 메커니즘(forget, input, output gate)으로 장기 기억을 유지하는 순환 구조 제안",impact:"10년 넘게 시퀀스 모델링의 표준. NLP, 음성, 시계열 등 거의 모든 순차 데이터 처리에 활용",
+link:"https://doi.org/10.1162/neco.1997.9.8.1735"},
+
+{id:"lenet98",y:1998,t:"Gradient-Based Learning Applied to Document Recognition",a:"Yann LeCun, Léon Bottou, Yoshua Bengio, Patrick Haffner",af:"AT&T Labs",cat:"cnn",refs:["lenet89","backprop86"],
+problem:"필기 문서 인식의 end-to-end 학습 시스템이 없었음",contribution:"LeNet-5: Conv → Pool → Conv → Pool → FC의 표준 CNN 아키텍처 확립. MNIST 벤치마크 수립",impact:"CNN 아키텍처의 고전적 청사진. 이후 모든 CNN(AlexNet~)의 설계 원형",
+link:"http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf"},
+
+// ===== 2000s =====
+{id:"neurallm03",y:2003,t:"A Neural Probabilistic Language Model",a:"Yoshua Bengio, Réjean Ducharme, Pascal Vincent, Christian Jauvin",af:"U de Montréal",cat:"selfsup",refs:["backprop86"],
+problem:"n-gram 언어 모델은 차원의 저주(curse of dimensionality)에 취약했음",contribution:"단어를 연속 벡터 공간에 임베딩하여 언어 모델링. 분산 표현(distributed representation) 학습",impact:"Word2Vec, GloVe 등 워드 임베딩 연구의 직접적 기원. 신경망 NLP의 출발점",
+link:"https://jmlr.org/papers/v3/bengio03a.html"},
+
+{id:"dbn06",y:2006,t:"A Fast Learning Algorithm for Deep Belief Nets",a:"Geoffrey Hinton, Simon Osindero, Yee-Whye Teh",af:"U of Toronto",cat:"foundations",refs:["boltzmann85","backprop86"],
+problem:"심층 네트워크는 vanishing gradient로 학습이 불가능하다는 인식이 지배적이었음",contribution:"RBM 기반 층별 사전학습(layer-wise pretraining) + fine-tuning 전략. Deep Belief Network",impact:"딥러닝 르네상스의 시작. '딥러닝'이라는 용어 자체의 부활을 촉발",
+link:"https://doi.org/10.1162/neco.2006.18.7.1527"},
+
+// ===== 2010-2011 =====
+{id:"xavier10",y:2010,t:"Understanding the Difficulty of Training Deep Feedforward Neural Networks",a:"Xavier Glorot, Yoshua Bengio",af:"U de Montréal",cat:"optimization",refs:["backprop86","dbn06"],
+problem:"깊은 네트워크의 학습 초기 가중치 설정이 불안정했음 (vanishing/exploding gradients)",contribution:"Xavier/Glorot Initialization: 레이어 간 분산을 유지하는 가중치 초기화 방법 제안",impact:"안정적인 딥 네트워크 학습의 핵심 기법. He initialization 등 후속 연구의 토대",
+link:"https://proceedings.mlr.press/v9/glorot10a.html"},
+
+// ===== 2012 =====
+{id:"alexnet12",y:2012,t:"ImageNet Classification with Deep Convolutional Neural Networks",a:"Alex Krizhevsky, Ilya Sutskever, Geoffrey Hinton",af:"U of Toronto",cat:"cnn",refs:["lenet98","dbn06","backprop86"],
+problem:"ImageNet 대규모 이미지 분류에서 전통적 특징공학 방식의 한계",contribution:"AlexNet: 8층 CNN + ReLU + Dropout + GPU 학습. ImageNet 2012 우승, top-5 error 16.4%→10.8%",impact:"딥러닝 혁명의 기폭제. 이후 VGG, ResNet 등 거대 CNN 연구 폭발",
+link:"https://papers.nips.cc/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html"},
+
+// ===== 2013 =====
+{id:"word2vec13",y:2013,t:"Efficient Estimation of Word Representations in Vector Space",a:"Tomas Mikolov, Kai Chen, Greg Corrado, Jeffrey Dean",af:"Google",cat:"selfsup",refs:["neurallm03"],
+problem:"대규모 코퍼스에서 효율적으로 단어 의미를 벡터로 학습하는 방법 필요",contribution:"Word2Vec (Skip-gram, CBOW): 빠르고 효과적인 워드 임베딩. 'king-man+woman≈queen' 등 의미 연산",impact:"NLP의 판도를 바꾼 연구. 사전학습된 표현(pretrained representation) 패러다임의 시작",
+link:"https://arxiv.org/abs/1301.3781"},
+
+{id:"vae13",y:2013,t:"Auto-Encoding Variational Bayes",a:"Diederik Kingma, Max Welling",af:"U of Amsterdam",cat:"generative",refs:["boltzmann85","backprop86"],
+problem:"복잡한 데이터의 잠재 변수 모델에서 사후 분포 추론이 계산적으로 어려웠음",contribution:"VAE: 변분 추론 + 재파라미터화 트릭으로 end-to-end 학습 가능한 생성 모델",impact:"확률적 생성 모델의 부활. β-VAE, VQ-VAE 등 후속 연구와 Stable Diffusion의 잠재 공간 개념에 기여",
+link:"https://arxiv.org/abs/1312.6114"},
+
+{id:"dqn13",y:2013,t:"Playing Atari with Deep Reinforcement Learning",a:"Volodymyr Mnih et al.",af:"DeepMind",cat:"rl",refs:["qlearn89","backprop86"],
+problem:"고차원 감각 입력(픽셀)에서 직접 RL 정책을 학습하는 것이 불가능하다고 여겨졌음",contribution:"DQN: CNN + Q-Learning + Experience Replay + Target Network. 원시 픽셀에서 Atari 게임 학습",impact:"Deep RL의 시작. AlphaGo, 로보틱스 RL 등으로 이어지는 심층 강화학습의 출발점",
+link:"https://arxiv.org/abs/1312.5602"},
+
+// ===== 2014 =====
+{id:"gan14",y:2014,t:"Generative Adversarial Nets",a:"Ian Goodfellow et al.",af:"U de Montréal",cat:"generative",refs:["backprop86"],
+problem:"현실적인 이미지를 생성하는 확률 모델의 학습이 어려웠음",contribution:"GAN: 생성자(Generator)와 판별자(Discriminator)의 적대적 게임을 통한 암묵적(implicit) 생성 모델",impact:"이미지 생성, 스타일 변환, 데이터 증강 등 생성 AI의 대중화. DCGAN, StyleGAN 등으로 발전",
+link:"https://arxiv.org/abs/1406.2661"},
+
+{id:"attention14",y:2014,t:"Neural Machine Translation by Jointly Learning to Align and Translate",a:"Dzmitry Bahdanau, Kyunghyun Cho, Yoshua Bengio",af:"U de Montréal, Jacobs University Bremen",cat:"rnn",refs:["seq2seq14","lstm97"],
+problem:"Seq2Seq의 고정 길이 컨텍스트 벡터가 긴 문장에서 정보 병목을 일으킴",contribution:"Attention Mechanism: 디코더가 인코더의 모든 은닉 상태를 가중합으로 참조. 최초의 어텐션 메커니즘",impact:"Transformer의 직접적 기원. 모든 현대 NLP/Vision 모델의 핵심 구성 요소",
+link:"https://arxiv.org/abs/1409.0473"},
+
+{id:"seq2seq14",y:2014,t:"Sequence to Sequence Learning with Neural Networks",a:"Ilya Sutskever, Oriol Vinyals, Quoc V. Le",af:"Google",cat:"rnn",refs:["lstm97"],
+problem:"가변 길이 시퀀스 간 매핑(예: 번역)의 end-to-end 학습이 어려웠음",contribution:"Seq2Seq: Encoder-Decoder LSTM 구조로 시퀀스-시퀀스 매핑. 입력 시퀀스 반전 트릭",impact:"기계번역, 대화 시스템, 텍스트 요약 등 시퀀스 변환 문제의 표준 패러다임이 됨",
+link:"https://arxiv.org/abs/1409.3215"},
+
+{id:"gru14",y:2014,t:"Learning Phrase Representations using RNN Encoder-Decoder for Statistical Machine Translation",a:"Kyunghyun Cho et al.",af:"U de Montréal",cat:"rnn",refs:["lstm97"],
+problem:"LSTM의 복잡한 게이트 구조가 계산적으로 무겁고 학습이 느렸음",contribution:"GRU (Gated Recurrent Unit): LSTM을 단순화한 2-게이트 구조 (reset, update). 비슷한 성능, 적은 파라미터",impact:"경량 시퀀스 모델링의 선택지로 자리잡음. Encoder-Decoder 구조도 함께 제안",
+link:"https://arxiv.org/abs/1406.1078"},
+
+{id:"vgg14",y:2014,t:"Very Deep Convolutional Networks for Large-Scale Image Recognition",a:"Karen Simonyan, Andrew Zisserman",af:"U of Oxford",cat:"cnn",refs:["alexnet12"],
+problem:"AlexNet 이후 네트워크 깊이의 효과가 체계적으로 검증되지 않았음",contribution:"VGGNet: 3×3 작은 필터만 사용하여 16-19층까지 깊게 쌓은 CNN. 깊이의 중요성 실증",impact:"'깊을수록 좋다'는 패러다임 확립. 전이학습 백본으로 광범위하게 사용됨",
+link:"https://arxiv.org/abs/1409.1556"},
+
+{id:"inception14",y:2014,t:"Going Deeper with Convolutions",a:"Christian Szegedy et al.",af:"Google",cat:"cnn",refs:["alexnet12"],
+problem:"네트워크를 깊게 쌓으면 계산량이 급증하는 문제",contribution:"GoogLeNet/Inception: 다양한 크기의 필터(1×1, 3×3, 5×5)를 병렬 사용하는 Inception 모듈. 22층, 파라미터 효율적",impact:"효율적 아키텍처 설계의 선구자. Network-in-Network 개념과 1×1 convolution 대중화",
+link:"https://arxiv.org/abs/1409.4842"},
+
+{id:"dropout14",y:2014,t:"Dropout: A Simple Way to Prevent Neural Networks from Overfitting",a:"Nitish Srivastava, Geoffrey Hinton et al.",af:"U of Toronto",cat:"optimization",refs:["backprop86"],
+problem:"딥 네트워크의 과적합(overfitting) 문제가 심각했음",contribution:"Dropout: 학습 시 무작위로 뉴런을 비활성화하는 정규화 기법. 앙상블 효과",impact:"딥러닝의 가장 널리 쓰이는 정규화 기법 중 하나. 거의 모든 아키텍처에 적용",
+link:"https://jmlr.org/papers/v15/srivastava14a.html"},
+
+{id:"adam14",y:2014,t:"Adam: A Method for Stochastic Optimization",a:"Diederik Kingma, Jimmy Ba",af:"U of Amsterdam, U of Toronto",cat:"optimization",refs:["xavier10"],
+problem:"SGD의 학습률 수동 조정이 어렵고, 파라미터별 적응적 학습률이 필요했음",contribution:"Adam Optimizer: 1차/2차 모멘트 추정을 결합한 적응적 학습률 최적화. SGD + Momentum + RMSprop 통합",impact:"사실상 딥러닝의 디폴트 옵티마이저. 거의 모든 논문에서 사용됨",
+link:"https://arxiv.org/abs/1412.6980"},
+
+{id:"glove14",y:2014,t:"GloVe: Global Vectors for Word Representation",a:"Jeffrey Pennington, Richard Socher, Christopher Manning",af:"Stanford",cat:"selfsup",refs:["word2vec13"],
+problem:"Word2Vec은 로컬 컨텍스트만 활용하고 글로벌 통계량을 무시",contribution:"GloVe: 전역 동시출현 행렬 + 로컬 컨텍스트 윈도우를 결합한 워드 임베딩",impact:"Word2Vec과 함께 워드 임베딩의 양대 산맥. 다양한 NLP 태스크의 기본 입력으로 활용",
+link:"https://aclanthology.org/D14-1162/"},
+
+// ===== 2015 =====
+{id:"resnet15",y:2015,t:"Deep Residual Learning for Image Recognition",a:"Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun",af:"Microsoft Research",cat:"cnn",refs:["vgg14","alexnet12"],
+problem:"네트워크가 깊어질수록 오히려 성능이 저하되는 degradation 문제",contribution:"ResNet: Skip Connection(잔차 연결)으로 수백 층 이상의 극심층 네트워크 학습 가능. ILSVRC 2015 우승",impact:"현대 딥러닝 아키텍처의 가장 영향력 있는 논문 중 하나. 6만회 이상 인용",
+link:"https://arxiv.org/abs/1512.03385"},
+
+{id:"batchnorm15",y:2015,t:"Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift",a:"Sergey Ioffe, Christian Szegedy",af:"Google",cat:"optimization",refs:["alexnet12"],
+problem:"내부 공변량 이동(internal covariate shift)으로 깊은 네트워크 학습이 불안정했음",contribution:"Batch Normalization: 미니배치 단위로 활성값을 정규화. 학습 속도 대폭 향상, 초기화 의존성 감소",impact:"거의 모든 CNN/딥러닝 모델에 기본 탑재. 학습 안정화의 표준 기법",
+link:"https://arxiv.org/abs/1502.03167"},
+
+{id:"heinit15",y:2015,t:"Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification",a:"Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun",af:"Microsoft Research",cat:"optimization",refs:["xavier10","resnet15"],
+problem:"ReLU를 사용하는 깊은 네트워크에서 Xavier 초기화가 부적합했음",contribution:"He Initialization (Kaiming Init): ReLU 활성화 함수에 최적화된 가중치 초기화 방법",impact:"ReLU 기반 네트워크(사실상 대부분)의 표준 초기화 방법",
+link:"https://arxiv.org/abs/1502.01852"},
+
+{id:"dqn15",y:2015,t:"Human-level Control through Deep Reinforcement Learning",a:"Mnih et al.",af:"DeepMind",cat:"rl",refs:["dqn13"],
+problem:"2013 DQN의 안정성과 범용성을 Nature급으로 검증할 필요",contribution:"DQN (Nature 버전): 49개 Atari 게임에서 인간 수준 달성. Target network + experience replay의 공식화",impact:"Deep RL의 공식적 시작점(Nature 게재). 게임 AI → 로보틱스 → 의사결정 전반으로 RL 확산",
+link:"https://doi.org/10.1038/nature14236"},
+
+{id:"unet15",y:2015,t:"U-Net: Convolutional Networks for Biomedical Image Segmentation",a:"Olaf Ronneberger, Philipp Fischer, Thomas Brox",af:"U of Freiburg",cat:"cnn",refs:["lenet98"],
+problem:"의료 영상에서 소량의 학습 데이터로 정밀한 세그멘테이션이 어려웠음",contribution:"U-Net: Encoder-Decoder + Skip Connection 구조의 세그멘테이션 네트워크",impact:"의료 영상 분석의 표준. Stable Diffusion의 잡음 제거 네트워크로도 채택됨",
+link:"https://arxiv.org/abs/1505.04597"},
+
+{id:"dcgan15",y:2015,t:"Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks",a:"Alec Radford, Luke Metz, Soumith Chintala",af:"Indico Research, Facebook AI Research",cat:"generative",refs:["gan14"],
+problem:"GAN 학습이 극도로 불안정했음",contribution:"DCGAN: CNN 기반 GAN의 안정적 학습 가이드라인 (BatchNorm, stride conv, no pooling 등)",impact:"GAN 실용화의 핵심 전환점. 이후 거의 모든 GAN 연구의 기본 아키텍처",
+link:"https://arxiv.org/abs/1511.06434"},
+
+// ===== 2016 =====
+{id:"alphago16",y:2016,t:"Mastering the Game of Go with Deep Neural Networks and Tree Search",a:"David Silver et al.",af:"DeepMind",cat:"rl",refs:["dqn15","reinforce92"],
+problem:"바둑은 탐색 공간이 10^170으로 기존 게임 AI 방식이 불가능했음",contribution:"AlphaGo: 딥러닝(policy/value network) + Monte Carlo Tree Search. 이세돌 9단에 4:1 승리",impact:"AI의 대중적 인식 전환점. RL + 딥러닝 결합의 위력을 전세계에 증명",
+link:"https://doi.org/10.1038/nature16961"},
+
+{id:"a3c16",y:2016,t:"Asynchronous Methods for Deep Reinforcement Learning",a:"Volodymyr Mnih et al.",af:"DeepMind",cat:"rl",refs:["dqn13","reinforce92"],
+problem:"DQN은 경험 리플레이 메모리 요구량이 크고, on-policy 학습이 어려웠음",contribution:"A3C (Asynchronous Advantage Actor-Critic): 다중 에이전트 비동기 병렬 학습. Actor-Critic 구조",impact:"Policy gradient 기반 학습의 안정화. PPO 등 후속 알고리즘의 기반",
+link:"https://arxiv.org/abs/1602.01783"},
+
+{id:"realnvp16",y:2016,t:"Density Estimation using Real-NVP",a:"Laurent Dinh, Jascha Sohl-Dickstein, Samy Bengio",af:"U de Montréal, Google Brain",cat:"generative",refs:["vae13"],
+problem:"정확한 likelihood 계산이 가능한 유연한 생성 모델이 부족했음",contribution:"Real-NVP: Normalizing Flow 기반 생성 모델. Affine coupling layers로 정확한 log-likelihood 계산",impact:"Flow 기반 생성 모델(Glow 등)의 핵심 토대. Diffusion model의 이론적 배경에도 기여",
+link:"https://arxiv.org/abs/1605.08803"},
+
+{id:"layernorm16",y:2016,t:"Layer Normalization",a:"Jimmy Lei Ba, Jamie Ryan Kiros, Geoffrey Hinton",af:"U of Toronto",cat:"optimization",refs:["batchnorm15"],
+problem:"Batch Normalization은 배치 크기에 의존적이고 RNN에 적용이 어려웠음",contribution:"Layer Normalization: 배치 대신 레이어 차원에서 정규화. 배치 크기 독립적",impact:"Transformer의 핵심 구성 요소. GPT, BERT 등 모든 Transformer에 사용됨",
+link:"https://arxiv.org/abs/1607.06450"},
+
+{id:"densenet16",y:2016,t:"Densely Connected Convolutional Networks",a:"Gao Huang et al.",af:"Cornell, Tsinghua, Facebook AI",cat:"cnn",refs:["resnet15"],
+problem:"깊은 네트워크에서 초기 레이어의 정보가 후반부로 갈수록 희석됨",contribution:"DenseNet: 모든 이전 레이어의 출력을 이후 레이어에 연결(dense connection). 특징 재사용 극대화",impact:"파라미터 효율적인 깊은 네트워크. 의료 영상 등에서 특히 활용",
+link:"https://arxiv.org/abs/1608.06993"},
+
+// ===== 2017 =====
+{id:"transformer17",y:2017,t:"Attention Is All You Need",a:"Ashish Vaswani et al.",af:"Google Brain, Google Research, U of Toronto",cat:"transformer",refs:["attention14","lstm97","layernorm16"],
+problem:"RNN/LSTM의 순차적 연산이 병렬화를 불가능하게 하고, 장거리 의존성 포착이 여전히 어려웠음",contribution:"Transformer: Self-Attention 기반 아키텍처. Multi-Head Attention + Positional Encoding. RNN 없이 시퀀스 처리",impact:"현대 AI의 가장 핵심적인 아키텍처. GPT, BERT, ViT, 사실상 모든 최신 모델의 기반",
+link:"https://arxiv.org/abs/1706.03762"},
+
+{id:"ppo17",y:2017,t:"Proximal Policy Optimization Algorithms",a:"John Schulman et al.",af:"OpenAI",cat:"rl",refs:["a3c16","reinforce92"],
+problem:"Policy gradient 방법이 학습률에 민감하고 불안정했음 (TRPO는 구현이 복잡)",contribution:"PPO: Clipped surrogate objective로 안정적이면서 구현이 간단한 policy gradient. Trust region의 실용적 근사",impact:"가장 널리 쓰이는 RL 알고리즘. RLHF(ChatGPT 학습)의 핵심 구성 요소",
+link:"https://arxiv.org/abs/1707.06347"},
+
+{id:"alphazero17",y:2017,t:"Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm",a:"David Silver et al.",af:"DeepMind",cat:"rl",refs:["alphago16"],
+problem:"AlphaGo는 인간 기보 데이터에 의존했음",contribution:"AlphaZero: 순수 자기 대국(self-play)만으로 바둑/체스/장기를 초인적 수준으로 학습. 도메인 지식 불필요",impact:"Self-play RL의 위력 증명. MuZero, 과학 분야 AI로 확장",
+link:"https://arxiv.org/abs/1712.01815"},
+
+{id:"gcn17",y:2017,t:"Semi-Supervised Classification with Graph Convolutional Networks",a:"Thomas Kipf, Max Welling",af:"U of Amsterdam",cat:"graph",refs:["backprop86"],
+problem:"그래프 구조 데이터에 CNN을 적용할 수 없었음",contribution:"GCN: 스펙트럴 그래프 컨볼루션의 1차 근사. 그래프 노드의 이웃 정보를 집계하여 표현 학습",impact:"Graph Neural Network 분야의 사실상 표준 모델. 분자, 소셜 네트워크, 추천 시스템 등",
+link:"https://arxiv.org/abs/1609.02907"},
+
+{id:"graphsage17",y:2017,t:"Inductive Representation Learning on Large Graphs",a:"William Hamilton, Zhitao Ying, Jure Leskovec",af:"Stanford",cat:"graph",refs:["gcn17"],
+problem:"GCN은 transductive하여 새로운 노드에 대한 일반화가 어려웠음",contribution:"GraphSAGE: 이웃 샘플링 + 집계 함수(mean, LSTM, pooling)로 귀납적(inductive) 그래프 학습",impact:"대규모 그래프에서의 확장 가능한 GNN. Pinterest 등 산업 적용 사례",
+link:"https://arxiv.org/abs/1706.02216"},
+
+{id:"nas17",y:2017,t:"Neural Architecture Search with Reinforcement Learning",a:"Barret Zoph, Quoc V. Le",af:"Google Brain",cat:"scaling",refs:["reinforce92","resnet15"],
+problem:"신경망 아키텍처 설계가 전적으로 인간 전문가의 직관에 의존했음",contribution:"NAS: RL 기반 컨트롤러가 자동으로 최적 아키텍처를 탐색. RNN으로 아키텍처를 생성하고 성능으로 보상",impact:"AutoML/NAS 분야의 시작. EfficientNet, NASNet 등으로 발전",
+link:"https://arxiv.org/abs/1611.01578"},
+
+// ===== 2018 =====
+{id:"elmo18",y:2018,t:"Deep Contextualized Word Representations",a:"Matthew Peters et al.",af:"Allen Institute for AI (AI2)",cat:"selfsup",refs:["lstm97","word2vec13"],
+problem:"Word2Vec/GloVe는 문맥에 따른 단어 의미 변화를 포착하지 못했음 (정적 임베딩)",contribution:"ELMo: 양방향 LSTM 언어 모델의 내부 표현을 문맥 의존적 워드 임베딩으로 활용",impact:"문맥 의존 임베딩의 시작. BERT의 직접적 동기 부여",
+link:"https://arxiv.org/abs/1802.05365"},
+
+{id:"bert18",y:2018,t:"BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",a:"Jacob Devlin et al.",af:"Google AI Language",cat:"transformer",refs:["transformer17","elmo18"],
+problem:"GPT 등 단방향 모델은 양방향 문맥을 활용하지 못했음",contribution:"BERT: Masked Language Model(MLM) + Next Sentence Prediction으로 양방향 사전학습. Fine-tuning 패러다임",impact:"NLP의 패러다임 전환. 11개 벤치마크에서 동시 SOTA. Pre-train → Fine-tune이 표준이 됨",
+link:"https://arxiv.org/abs/1810.04805"},
+
+{id:"gpt118",y:2018,t:"Improving Language Understanding by Generative Pre-Training",a:"Alec Radford et al.",af:"OpenAI",cat:"transformer",refs:["transformer17"],
+problem:"대규모 비지도 텍스트를 활용한 범용 언어 이해 모델이 없었음",contribution:"GPT-1: Transformer Decoder 기반 단방향 언어 모델의 대규모 사전학습 → 다운스트림 fine-tuning",impact:"GPT 시리즈의 시작. '스케일이 곧 성능'이라는 패러다임의 초석",
+link:"https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf"},
+
+{id:"stylegan18",y:2018,t:"A Style-Based Generator Architecture for Generative Adversarial Networks",a:"Tero Karras, Samuli Laine, Timo Aila",af:"NVIDIA",cat:"generative",refs:["gan14","dcgan15"],
+problem:"GAN의 생성 프로세스를 세밀하게 제어할 수 없었음",contribution:"StyleGAN: Mapping Network + AdaIN으로 스타일 기반 생성. 계층적 스타일 제어(coarse/medium/fine)",impact:"고해상도 이미지 생성의 새 지평. StyleGAN2, StyleGAN3으로 지속 발전",
+link:"https://arxiv.org/abs/1812.04948"},
+
+{id:"glow18",y:2018,t:"Glow: Generative Flow with Invertible 1x1 Convolutions",a:"Diederik Kingma, Prafulla Dhariwal",af:"OpenAI",cat:"generative",refs:["realnvp16","vae13"],
+problem:"Flow 모델의 표현력이 제한적이었음",contribution:"Glow: 가역 1×1 컨볼루션 + ActNorm + Affine coupling. 정확한 likelihood + 고품질 생성",impact:"Normalizing Flow의 대표 모델. 정확한 확률 추론이 필요한 응용에서 활용",
+link:"https://arxiv.org/abs/1807.03039"},
+
+{id:"gat18",y:2018,t:"Graph Attention Networks",a:"Petar Veličković et al.",af:"U of Cambridge, U de Montréal",cat:"graph",refs:["gcn17","transformer17"],
+problem:"GCN은 이웃 노드를 동등하게 취급하여 중요도 차별화가 불가능했음",contribution:"GAT: Attention 메커니즘을 그래프에 적용. 이웃 노드별 중요도를 학습으로 결정",impact:"GNN에서 attention의 유효성 입증. 다양한 GNN 변형의 기반",
+link:"https://arxiv.org/abs/1710.10903"},
+
+// ===== 2019 =====
+{id:"gpt219",y:2019,t:"Language Models are Unsupervised Multitask Learners",a:"Alec Radford et al.",af:"OpenAI",cat:"transformer",refs:["gpt118"],
+problem:"태스크별 fine-tuning 없이 언어 모델이 다양한 작업을 수행할 수 있는지 검증 필요",contribution:"GPT-2 (1.5B): 대규모 LM이 zero-shot으로 번역, 요약, QA 등 수행 가능함을 실증",impact:"'더 큰 모델 = 더 나은 성능'의 경험적 증거. GPT-3로의 스케일업 동기",
+link:"https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf"},
+
+{id:"t519",y:2019,t:"Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer",a:"Colin Raffel et al.",af:"Google Research",cat:"transformer",refs:["bert18","transformer17"],
+problem:"NLP 태스크마다 다른 아키텍처/학습 전략이 필요했음",contribution:"T5: 모든 NLP 태스크를 text-to-text로 통일. 대규모 비교 실험으로 사전학습 전략 체계화",impact:"통합 프레임워크로서의 LLM 방향성 제시. Instruction tuning 연구의 기반",
+link:"https://arxiv.org/abs/1910.10683"},
+
+{id:"moco19",y:2019,t:"Momentum Contrast for Unsupervised Visual Representation Learning",a:"Kaiming He et al.",af:"Facebook AI Research (FAIR)",cat:"selfsup",refs:["resnet15"],
+problem:"라벨 없는 이미지에서 좋은 표현을 학습하는 효과적 방법이 필요했음",contribution:"MoCo: Momentum Encoder + Queue로 대규모 negative 샘플을 효율적으로 관리하는 대조 학습",impact:"자기지도 시각 학습(Self-supervised visual learning)의 핵심 방법론. MoCo v2, v3으로 발전",
+link:"https://arxiv.org/abs/1911.05722"},
+
+{id:"muzero19",y:2019,t:"Mastering Atari, Go, Chess and Shogi by Planning with a Learned Model",a:"Julian Schrittwieser et al.",af:"DeepMind",cat:"rl",refs:["alphazero17"],
+problem:"AlphaZero는 게임 규칙(dynamics model)을 알아야 했음",contribution:"MuZero: 환경 모델을 학습하여 규칙 없이도 계획(planning) 가능. Model-based RL의 정점",impact:"Model-based RL의 이정표. 실세계 의사결정 문제로의 RL 확장 가능성",
+link:"https://arxiv.org/abs/1911.08265"},
+
+{id:"chauffeurnet19",y:2019,t:"ChauffeurNet: Learning to Drive by Imitating the Best and Synthesizing the Worst",a:"Mayank Bansal, Alex Krizhevsky, Abhijit Ogale",af:"Waymo",cat:"ad",refs:["resnet15"],
+problem:"모방학습 기반 자율주행이 분포 외(out-of-distribution) 상황에서 취약했음",contribution:"ChauffeurNet: 중간 표현(top-down rendering) + 합성 perturbation으로 로버스트한 모방학습. 데이터 증강 전략",impact:"End-to-end 자율주행 계획의 실용적 첫 사례(Waymo). 이후 E2E 연구의 기준점",
+link:"https://arxiv.org/abs/1812.03079"},
+
+// ===== 2020 =====
+{id:"gpt320",y:2020,t:"Language Models are Few-Shot Learners",a:"Tom Brown et al.",af:"OpenAI",cat:"transformer",refs:["gpt219","scalinglaws20"],
+problem:"모델이 few-shot에서도 좋은 성능을 내려면 얼마나 커야 하는지 검증 필요",contribution:"GPT-3 (175B): In-context learning 발견. Few-shot 프롬프팅만으로 다양한 태스크 수행. Emergent abilities",impact:"LLM 시대의 본격적 개막. 프롬프트 엔지니어링, In-context learning 연구 폭발",
+link:"https://arxiv.org/abs/2005.14165"},
+
+{id:"vit20",y:2020,t:"An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",a:"Alexey Dosovitskiy et al.",af:"Google Research, Google Brain",cat:"vision",refs:["transformer17","resnet15"],
+problem:"Transformer가 비전에서도 CNN을 대체할 수 있는지 검증 필요",contribution:"ViT: 이미지를 16×16 패치로 분할 → 패치를 토큰으로 Transformer에 입력. 대규모 데이터에서 CNN 능가",impact:"Vision Transformer 시대 개막. DeiT, Swin, MAE 등 후속 연구 폭발",
+link:"https://arxiv.org/abs/2010.11929"},
+
+{id:"simclr20",y:2020,t:"A Simple Framework for Contrastive Learning of Visual Representations",a:"Ting Chen et al.",af:"Google Research",cat:"selfsup",refs:["moco19"],
+problem:"자기지도 학습에서 효과적인 augmentation과 학습 전략의 체계적 분석이 부족했음",contribution:"SimCLR: 데이터 증강 + 대조 손실의 단순하고 효과적인 프레임워크. Temperature scaling, projection head의 중요성 규명",impact:"대조 학습의 핵심 레퍼런스. 자기지도 학습이 지도학습에 근접할 수 있음을 실증",
+link:"https://arxiv.org/abs/2002.05709"},
+
+{id:"byol20",y:2020,t:"Bootstrap Your Own Latent: A New Approach to Self-Supervised Learning",a:"Jean-Bastien Grill et al.",af:"DeepMind",cat:"selfsup",refs:["simclr20","moco19"],
+problem:"대조 학습이 대량의 negative 샘플에 의존하여 배치 크기에 민감했음",contribution:"BYOL: Negative pair 없이 자기지도 학습. Online/target network + momentum update. Collapse 방지",impact:"Negative-free 자기지도 학습의 가능성 입증. 학습 안정성 향상",
+link:"https://arxiv.org/abs/2006.07733"},
+
+{id:"ddpm20",y:2020,t:"Denoising Diffusion Probabilistic Models",a:"Jonathan Ho, Ajay Jain, Pieter Abbeel",af:"UC Berkeley",cat:"generative",refs:["vae13","unet15"],
+problem:"GAN은 학습이 불안정하고, VAE는 생성 품질이 낮았음",contribution:"DDPM: 점진적 노이즈 추가/제거 과정으로 이미지 생성. Markov chain + variational bound",impact:"Diffusion Model 혁명의 시작. DALL-E 2, Stable Diffusion, Sora 등으로 이어지는 생성 AI의 핵심",
+link:"https://arxiv.org/abs/2006.11239"},
+
+{id:"scalinglaws20",y:2020,t:"Scaling Laws for Neural Language Models",a:"Jared Kaplan et al.",af:"OpenAI, Johns Hopkins",cat:"scaling",refs:["gpt219"],
+problem:"모델 크기, 데이터량, 계산량과 성능의 관계가 정량적으로 불분명했음",contribution:"Neural Scaling Laws: 모델 파라미터, 데이터셋 크기, 계산 예산과 loss의 power-law 관계 발견",impact:"'더 크게 만들면 더 좋다'의 정량적 근거. Chinchilla, GPT-4 등의 스케일링 전략에 직접 영향",
+link:"https://arxiv.org/abs/2001.08361"},
+
+{id:"scoresde20",y:2020,t:"Score-Based Generative Modeling through Stochastic Differential Equations",a:"Yang Song et al.",af:"Stanford, Google Brain",cat:"generative",refs:["ddpm20","realnvp16"],
+problem:"DDPM과 Score Matching의 이론적 연결이 불명확했음",contribution:"Score SDE: DDPM과 score-based 모델을 통합하는 SDE 프레임워크. 연속 시간 확산 과정의 일반화",impact:"Diffusion 모델의 이론적 기반 확립. Classifier guidance, DPM-Solver 등의 이론적 토대",
+link:"https://arxiv.org/abs/2011.13456"},
+
+{id:"detr20",y:2020,t:"End-to-End Object Detection with Transformers",a:"Nicolas Carion et al.",af:"Facebook AI Research (FAIR)",cat:"vision",refs:["transformer17","resnet15"],
+problem:"객체 검출이 anchor, NMS 등 수작업 설계에 의존했음",contribution:"DETR: Transformer + bipartite matching으로 end-to-end 객체 검출. 수작업 컴포넌트 제거",impact:"검출 분야에 Transformer 도입. Deformable DETR, DINO 등으로 발전",
+link:"https://arxiv.org/abs/2005.12872"},
+
+{id:"nmp20",y:2020,t:"NMP: Neural Motion Planner",a:"Wenyuan Zeng et al.",af:"Uber ATG, U of Toronto",cat:"ad",refs:["chauffeurnet19"],
+problem:"자율주행에서 perception과 planning이 분리되어 정보 손실 발생",contribution:"NMP: LiDAR 포인트 클라우드에서 직접 cost volume을 예측하여 궤적 생성. End-to-end joint learning",impact:"인식-계획 통합 E2E 자율주행의 선구적 연구. UniAD 등 통합 접근법에 영향",
+link:"https://arxiv.org/abs/2101.06679"},
+
+// ===== 2021 =====
+{id:"clip21",y:2021,t:"Learning Transferable Visual Models From Natural Language Supervision",a:"Alec Radford et al.",af:"OpenAI",cat:"multimodal",refs:["vit20","gpt219"],
+problem:"비전 모델이 고정된 카테고리에만 분류 가능하고, 언어로 유연하게 지시할 수 없었음",contribution:"CLIP: 4억 이미지-텍스트 쌍으로 대조 학습. 자연어로 이미지를 분류하는 zero-shot 비전 모델",impact:"멀티모달 AI의 핵심. Stable Diffusion, DALL-E 2의 텍스트 인코더, VLA 연구의 기반",
+link:"https://arxiv.org/abs/2103.00020"},
+
+{id:"dalle21",y:2021,t:"Zero-Shot Text-to-Image Generation",a:"Aditya Ramesh et al.",af:"OpenAI",cat:"multimodal",refs:["clip21","gpt219"],
+problem:"텍스트 설명에서 고품질 이미지를 생성하는 범용 모델이 없었음",contribution:"DALL-E: GPT 기반 autoregressive 이미지 생성 + CLIP 재랭킹. 텍스트→이미지 생성의 첫 대규모 실증",impact:"Text-to-Image 생성의 시작점. DALL-E 2, Stable Diffusion으로 이어지는 생성 AI 열풍",
+link:"https://arxiv.org/abs/2102.12092"},
+
+{id:"swin21",y:2021,t:"Swin Transformer: Hierarchical Vision Transformer using Shifted Windows",a:"Ze Liu et al.",af:"Microsoft Research Asia",cat:"vision",refs:["vit20"],
+problem:"ViT는 고해상도 이미지에서 self-attention의 O(n²) 복잡도로 확장이 어려웠음",contribution:"Swin Transformer: 이동 윈도우(shifted window) 기반 계층적 Transformer. 선형 복잡도",impact:"비전 Transformer의 범용 백본으로 자리잡음. 검출, 세그멘테이션 등에서 SOTA",
+link:"https://arxiv.org/abs/2103.14030"},
+
+{id:"deit21",y:2021,t:"Training Data-Efficient Image Transformers & Distillation through Attention",a:"Hugo Touvron et al.",af:"Facebook AI, Sorbonne University",cat:"vision",refs:["vit20"],
+problem:"ViT는 JFT-300M 같은 거대 데이터셋 없이는 CNN보다 성능이 낮았음",contribution:"DeiT: 지식 증류(knowledge distillation) + 강력한 augmentation으로 ImageNet만으로 ViT 훈련 성공",impact:"ViT를 학계/산업에서 실용적으로 사용 가능하게 한 핵심 연구",
+link:"https://arxiv.org/abs/2012.12877"},
+
+{id:"mae21",y:2021,t:"Masked Autoencoders Are Scalable Vision Learners",a:"Kaiming He et al.",af:"Facebook AI Research (FAIR)",cat:"selfsup",refs:["vit20","bert18"],
+problem:"BERT의 masked prediction 전략을 비전에 효과적으로 적용하는 방법이 불분명했음",contribution:"MAE: 이미지 패치의 75%를 마스킹하고 복원하는 자기지도 학습. 비대칭 인코더-디코더",impact:"비전 자기지도 학습의 효율성과 스케일링 가능성을 실증",
+link:"https://arxiv.org/abs/2111.06377"},
+
+{id:"switch21",y:2021,t:"Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity",a:"William Fedus, Barret Zoph, Noam Shazeer",af:"Google Brain",cat:"scaling",refs:["transformer17","scalinglaws20"],
+problem:"모든 파라미터를 모든 입력에 사용하면 계산 비용이 모델 크기에 비례하여 증가",contribution:"Switch Transformer: Mixture of Experts(MoE) + Top-1 라우팅으로 조건부 계산. 1조 파라미터 달성",impact:"Sparse MoE의 대규모 실증. Mixtral, GPT-4(추정) 등 현대 대형 모델의 핵심 기법",
+link:"https://arxiv.org/abs/2101.03961"},
+
+{id:"lora21",y:2021,t:"LoRA: Low-Rank Adaptation of Large Language Models",a:"Edward Hu et al.",af:"Microsoft",cat:"scaling",refs:["gpt320"],
+problem:"수십억 파라미터 모델의 full fine-tuning이 메모리/계산적으로 비현실적이었음",contribution:"LoRA: 가중치 변화를 저랭크 행렬 분해로 근사. 학습 파라미터를 0.1% 수준으로 줄임",impact:"LLM fine-tuning의 사실상 표준. QLoRA 등 후속 연구로 확장",
+link:"https://arxiv.org/abs/2106.09685"},
+
+{id:"efficientnetv221",y:2021,t:"EfficientNetV2: Smaller Models and Faster Training",a:"Mingxing Tan, Quoc V. Le",af:"Google Brain",cat:"cnn",refs:["nas17","resnet15"],
+problem:"NAS로 찾은 EfficientNet의 학습 속도가 느리고, 이미지 크기 증가 시 메모리 문제",contribution:"EfficientNetV2: Progressive learning + Fused-MBConv로 학습 속도 5-11배 향상",impact:"효율적 CNN 설계의 정점. 이후 ConvNeXt가 Transformer 시대에 CNN을 재평가하는 계기",
+link:"https://arxiv.org/abs/2104.00298"},
+
+{id:"cfg21",y:2021,t:"Classifier-Free Diffusion Guidance",a:"Jonathan Ho, Tim Salimans",af:"Google Brain",cat:"generative",refs:["ddpm20"],
+problem:"Classifier guidance는 별도의 분류기를 학습해야 하는 비용이 있었음",contribution:"Classifier-Free Guidance: 조건부/비조건부 모델을 동시 학습하여 추론 시 가이던스 스케일로 제어",impact:"Stable Diffusion, DALL-E 2 등 거의 모든 조건부 diffusion 모델의 핵심 기법",
+link:"https://arxiv.org/abs/2207.12598"},
+
+// ===== 2022 =====
+{id:"instructgpt22",y:2022,t:"Training Language Models to Follow Instructions with Human Feedback",a:"Long Ouyang et al.",af:"OpenAI",cat:"llm",refs:["gpt320","ppo17"],
+problem:"GPT-3는 유용한 응답 대신 학습 데이터 패턴을 따라가는 경향 (misalignment)",contribution:"InstructGPT: SFT → Reward Model → RLHF(PPO)의 3단계 alignment 파이프라인. 인간 피드백으로 LLM 정렬",impact:"ChatGPT의 기반 기술. RLHF가 LLM 정렬의 표준 방법론이 됨",
+link:"https://arxiv.org/abs/2203.02155"},
+
+{id:"cot22",y:2022,t:"Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",a:"Jason Wei et al.",af:"Google Research, Google Brain",cat:"llm",refs:["gpt320"],
+problem:"LLM이 복잡한 추론 문제(수학, 논리)에서 취약했음",contribution:"Chain-of-Thought (CoT): 중간 추론 과정을 프롬프트에 예시로 제공하면 추론 능력이 대폭 향상됨을 발견",impact:"프롬프트 엔지니어링의 핵심 기법. Tree-of-Thought, Self-Consistency 등으로 확장",
+link:"https://arxiv.org/abs/2201.11903"},
+
+{id:"chinchilla22",y:2022,t:"Training Compute-Optimal Large Language Models",a:"Jordan Hoffmann et al.",af:"DeepMind",cat:"scaling",refs:["scalinglaws20","gpt320"],
+problem:"Scaling Laws(Kaplan 2020)의 데이터/파라미터 최적 비율이 수정될 필요가 있었음",contribution:"Chinchilla: 모델 크기와 데이터를 동등하게 스케일해야 최적. 70B 모델이 280B Gopher를 능가",impact:"LLM 훈련 전략의 패러다임 전환. LLaMA 등 효율적 모델 설계에 직접 영향",
+link:"https://arxiv.org/abs/2203.15556"},
+
+{id:"convnext22",y:2022,t:"A ConvNet for the 2020s",a:"Zhuang Liu et al.",af:"Facebook AI Research, UC Berkeley",cat:"cnn",refs:["resnet15","swin21"],
+problem:"ViT가 CNN을 대체한다는 인식이 확산되었으나, CNN이 정말 열등한지 재검증 필요",contribution:"ConvNeXt: Transformer의 설계 원칙(large kernel, LayerNorm 등)을 CNN에 적용. 순수 CNN으로 ViT와 동등/우수 성능",impact:"'CNN은 죽지 않았다'는 반론. Transformer 시대에도 CNN의 가능성 재확인",
+link:"https://arxiv.org/abs/2201.03545"},
+
+{id:"ldm22",y:2022,t:"High-Resolution Image Synthesis with Latent Diffusion Models",a:"Robin Rombach et al.",af:"LMU Munich, Runway",cat:"generative",refs:["ddpm20","vae13","cfg21"],
+problem:"Diffusion 모델이 픽셀 공간에서 직접 작동하여 고해상도 생성이 계산적으로 비실용적",contribution:"Latent Diffusion Model (LDM): VAE의 잠재 공간에서 diffusion 수행. 계산 효율 대폭 향상 → Stable Diffusion",impact:"Stable Diffusion의 핵심 논문. 오픈소스 이미지 생성 AI 혁명을 촉발",
+link:"https://arxiv.org/abs/2112.10752"},
+
+{id:"palm22",y:2022,t:"PaLM: Scaling Language Modeling with Pathways",a:"Aakanksha Chowdhery et al.",af:"Google Research",cat:"transformer",refs:["gpt320","transformer17"],
+problem:"540B 규모의 dense 모델 학습과 emergent abilities의 체계적 분석 필요",contribution:"PaLM (540B): Pathways 시스템으로 6144 TPU에서 훈련. Emergent abilities (BIG-Bench) 대규모 분석",impact:"Emergent abilities 개념의 실증적 근거. PaLM-E, Gemini로 이어지는 Google LLM 계보",
+link:"https://arxiv.org/abs/2204.02311"},
+
+{id:"saycan22",y:2022,t:"Do As I Can, Not As I Say: Grounding Language in Robotic Affordances",a:"Michael Ahn et al.",af:"Google Research, Everyday Robots",cat:"vla",refs:["palm22"],
+problem:"LLM의 지식을 로봇의 실제 행동으로 연결(grounding)하는 방법이 없었음",contribution:"SayCan: LLM이 계획을 세우고, 로봇의 affordance model이 실행 가능성을 평가하여 최종 행동 선택",impact:"LLM + 로보틱스 결합의 시작. 이후 RT-1, RT-2, PaLM-E 등 VLA 연구의 동기",
+link:"https://arxiv.org/abs/2204.01691"},
+
+{id:"gato22",y:2022,t:"A Generalist Agent",a:"Scott Reed et al.",af:"DeepMind",cat:"vla",refs:["transformer17"],
+problem:"하나의 모델로 다양한 모달리티(텍스트, 이미지, 행동)를 처리하는 범용 에이전트가 없었음",contribution:"Gato: 단일 Transformer로 604개 태스크 수행 (Atari, 로봇 제어, 대화, 이미지 캡셔닝). 멀티모달 멀티태스크",impact:"Generalist agent 개념의 실증. Foundation model → 범용 에이전트로의 연구 방향 제시",
+link:"https://arxiv.org/abs/2205.06175"},
+
+{id:"rt122",y:2022,t:"RT-1: Robotics Transformer for Real-World Control at Scale",a:"Anthony Brohan et al.",af:"Google Research, Everyday Robots",cat:"vla",refs:["saycan22","transformer17"],
+problem:"로봇 제어를 위한 대규모 실세계 데이터 학습이 체계화되지 않았음",contribution:"RT-1: 13만 에피소드의 실세계 로봇 데이터로 학습한 Transformer 기반 로봇 정책. 700개 이상의 태스크",impact:"대규모 로봇 학습의 실증. RT-2, Octo 등 로봇 foundation model 연구의 기반",
+link:"https://arxiv.org/abs/2212.06817"},
+
+{id:"cai22",y:2022,t:"Constitutional AI: Harmlessness from AI Feedback",a:"Yuntao Bai et al.",af:"Anthropic",cat:"llm",refs:["instructgpt22"],
+problem:"RLHF의 인간 피드백 수집이 비용이 크고 확장이 어려웠음",contribution:"Constitutional AI (CAI): AI 자체가 원칙(constitution)에 따라 자기 피드백을 생성하는 RLAIF. 인간 개입 최소화",impact:"AI 안전 연구의 핵심 방법론. Anthropic의 Claude 시리즈에 적용",
+link:"https://arxiv.org/abs/2212.08073"},
+
+// ===== 2023 =====
+{id:"llama23",y:2023,t:"LLaMA: Open and Efficient Foundation Language Models",a:"Hugo Touvron et al.",af:"Meta AI",cat:"llm",refs:["chinchilla22","gpt320"],
+problem:"강력한 LLM이 폐쇄적이어서 학계/오픈소스 커뮤니티가 접근 불가능했음",contribution:"LLaMA: Chinchilla 스케일링 원칙 적용한 효율적 오픈 LLM (7B~65B). 13B가 GPT-3 175B에 필적",impact:"오픈소스 LLM 생태계 폭발의 기폭제. Alpaca, Vicuna, LLaMA 2/3 등으로 이어짐",
+link:"https://arxiv.org/abs/2302.13971"},
+
+{id:"gpt423",y:2023,t:"GPT-4 Technical Report",a:"OpenAI",af:"OpenAI",cat:"llm",refs:["gpt320","instructgpt22"],
+problem:"LLM의 성능을 한 단계 더 끌어올릴 수 있는 스케일과 방법론의 한계 탐색",contribution:"GPT-4: 멀티모달(텍스트+이미지) 입력. 전문 시험에서 인간 상위 10% 수준. 추정 MoE 구조",impact:"LLM 성능의 새로운 기준. 전문가 수준 AI의 가능성을 현실화",
+link:"https://arxiv.org/abs/2303.08774"},
+
+{id:"sam23",y:2023,t:"Segment Anything",a:"Alexander Kirillov et al.",af:"Meta AI Research (FAIR)",cat:"vision",refs:["vit20","mae21"],
+problem:"프롬프트 기반 범용 이미지 세그멘테이션 모델이 없었음",contribution:"SAM: 10억 마스크 데이터셋(SA-1B)으로 학습한 promptable segmentation model. 포인트/박스/텍스트 프롬프트",impact:"비전 분야의 'foundation model' 패러다임 확립. SAM 2, 자율주행/의료 등으로 확산",
+link:"https://arxiv.org/abs/2304.02643"},
+
+{id:"dpo23",y:2023,t:"Direct Preference Optimization: Your Language Model is Secretly a Reward Model",a:"Rafael Rafailov et al.",af:"Stanford",cat:"llm",refs:["instructgpt22","ppo17"],
+problem:"RLHF는 별도의 Reward Model 학습 + PPO 최적화의 복잡한 파이프라인이 필요",contribution:"DPO: Reward Model 없이 직접 preference data로 LLM을 최적화. RLHF를 분류 손실로 환원",impact:"LLM alignment의 간소화. RLHF 대안으로 빠르게 채택",
+link:"https://arxiv.org/abs/2305.18290"},
+
+{id:"rt223",y:2023,t:"RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control",a:"Anthony Brohan et al.",af:"Google DeepMind",cat:"vla",refs:["rt122","palm22"],
+problem:"로봇 모델이 인터넷 스케일의 시각-언어 지식을 활용하지 못했음",contribution:"RT-2: VLM(PaLI-X, PaLM-E)을 로봇 행동 토큰으로 fine-tuning. 웹 지식이 로봇 제어로 전이됨을 실증",impact:"VLA(Vision-Language-Action) 패러다임의 정식 출발",
+link:"https://arxiv.org/abs/2307.15818"},
+
+{id:"palme23",y:2023,t:"PaLM-E: An Embodied Multimodal Language Model",a:"Danny Driess et al.",af:"Google Research, TU Berlin",cat:"vla",refs:["palm22","vit20"],
+problem:"LLM을 실세계 센서 데이터와 직접 연결하는 범용적 방법이 없었음",contribution:"PaLM-E (562B): 다중 센서 입력(이미지, 3D 포인트 클라우드, 상태)을 PaLM에 통합. 세계 최대 VLM",impact:"Embodied AI와 LLM의 통합. 로봇 계획, 시각 QA, 탐색을 단일 모델로",
+link:"https://arxiv.org/abs/2303.03378"},
+
+{id:"uniad23",y:2023,t:"Planning-oriented Autonomous Driving (UniAD)",a:"Yihan Hu et al.",af:"Shanghai AI Lab, Wuhan University, SenseTime",cat:"ad",refs:["detr20","nmp20","transformer17"],
+problem:"자율주행의 인식/예측/계획 모듈이 독립적으로 최적화되어 정보 손실과 에러 전파 발생",contribution:"UniAD: 인식→추적→맵→예측→계획을 하나의 Transformer 네트워크로 통합. Query-based 통합 설계",impact:"E2E 자율주행의 이정표 논문 (CVPR 2023 Best Paper). 통합 접근법의 효과를 실증",
+link:"https://arxiv.org/abs/2212.10156"},
+
+{id:"vad23",y:2023,t:"VAD: Vectorized Scene Representation for Efficient Autonomous Driving",a:"Bo Jiang et al.",af:"HUST, Horizon Robotics",cat:"ad",refs:["uniad23"],
+problem:"UniAD 등은 래스터화된 표현을 사용하여 정보 밀도가 낮았음",contribution:"VAD: 벡터화된 씬 표현(vectorized map, vectorized motion)으로 E2E 자율주행. 효율적 + 해석 가능",impact:"벡터 기반 E2E 플래닝의 대표 연구. GenAD 등 후속 벡터 기반 방법론에 영향",
+link:"https://arxiv.org/abs/2303.12077"},
+
+// ===== 2024 =====
+{id:"mamba24",y:2024,t:"Mamba: Linear-Time Sequence Modeling with Selective State Spaces",a:"Albert Gu, Tri Dao",af:"CMU, Princeton",cat:"scaling",refs:["transformer17"],
+problem:"Transformer의 O(n²) self-attention이 긴 시퀀스에서 계산적 병목",contribution:"Mamba: Selective State Space Model (S6). 입력 의존적 게이팅으로 선형 시간 시퀀스 모델링",impact:"Transformer의 대안으로 주목. 비전, 의료, 시계열 등에서 빠르게 적용",
+link:"https://arxiv.org/abs/2312.00752"},
+
+{id:"octo24",y:2024,t:"Octo: An Open-Source Generalist Robot Policy",a:"Octo Model Team",af:"UC Berkeley, Stanford, CMU, Google DeepMind",cat:"vla",refs:["rt122"],
+problem:"로봇 학습용 오픈소스 범용 정책 모델이 부재했음",contribution:"Octo: Open X-Embodiment 데이터로 사전학습한 오픈소스 로봇 기초 모델",impact:"오픈소스 로봇 foundation model의 첫 실용적 사례",
+link:"https://arxiv.org/abs/2405.12213"},
+
+{id:"openvla24",y:2024,t:"OpenVLA: An Open-Source Vision-Language-Action Model",a:"Moo Jin Kim et al.",af:"Stanford, UC Berkeley, Google DeepMind, Toyota Research",cat:"vla",refs:["rt223","octo24"],
+problem:"VLA 모델의 학습 파이프라인이 비공개여서 재현과 연구가 어려웠음",contribution:"OpenVLA: Prismatic VLM + 로봇 행동 토큰의 오픈소스 VLA. 970K 에피소드로 사전학습. 7B 파라미터",impact:"VLA 연구의 민주화. 오차드/오프로드 VLA 연구에 직접적으로 활용 가능한 기반 모델",
+link:"https://arxiv.org/abs/2406.09246"},
+
+{id:"genad24",y:2024,t:"GenAD: Generalized Predictive Model for Autonomous Driving",a:"Jiazhi Yang et al.",af:"Shanghai AI Lab, HKU, U of Tübingen",cat:"ad",refs:["vad23","uniad23"],
+problem:"기존 E2E 자율주행 모델이 multi-step 미래 예측과 계획을 통합적으로 처리하지 못했음",contribution:"GenAD: Generative 모델 기반 자율주행. 미래 장면 생성 + 궤적 계획을 통합한 생성적 접근법",impact:"Diffusion/생성 모델을 자율주행 계획에 적용하는 연구 흐름의 대표 논문",
+link:"https://arxiv.org/abs/2403.09630"},
+
+{id:"diffplanner24",y:2024,t:"Diffusion Planner: Diffusion Policy for Autonomous Driving",a:"Various (ICLR 2025 accept)",af:"Various",cat:"ad",refs:["ddpm20","genad24"],
+problem:"자율주행 계획에서 다중 모드(multi-modal) 미래 궤적 생성이 어려웠음",contribution:"Diffusion Planner: DDPM 기반 궤적 생성 + Classifier Guidance로 조건부 계획. Ego + surrounding agents 동시 생성",impact:"Diffusion 모델의 자율주행 적용 최전선. CarMaker 시뮬레이션 폐루프 검증 연구의 기반",
+link:"https://arxiv.org/abs/2406.09246"},
+
+{id:"pi024",y:2024,t:"π0: A Vision-Language-Action Flow Model for General Robot Control",a:"Kevin Black et al.",af:"Physical Intelligence (π)",cat:"vla",refs:["openvla24","rt223"],
+problem:"하나의 로봇 모델로 매우 다양한 태스크와 환경에 일반화하기 어려웠음",contribution:"π0: Flow matching 기반 VLA 모델. 사전학습된 VLM + continuous action output",impact:"VLA의 최신 최전선. Flow matching + VLA의 결합으로 로봇 범용 정책의 새 방향",
+link:"https://arxiv.org/abs/2410.24164"},
+
+// ===== 2025 =====
+{id:"deepseekr125",y:2025,t:"DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning",a:"DeepSeek-AI",af:"DeepSeek",cat:"llm",refs:["ppo17","cot22"],
+problem:"LLM의 추론 능력을 RL로 체계적으로 향상시키는 방법의 확장성 검증 필요",contribution:"DeepSeek-R1: 대규모 RL(GRPO)로 추론 특화 LLM 학습. 오픈소스로 공개. 수학/코딩에서 GPT-4급 성능",impact:"RL 기반 reasoning 향상의 실용적 대규모 검증. 오픈소스 추론 모델의 새 기준",
+link:"https://arxiv.org/abs/2501.12948"},
+];
+
+// Build paper lookup
+const paperById = {};
+papers.forEach(p => paperById[p.id] = p);
+
+// Get full lineage (all ancestors) for a paper
+function getLineage(paperId) {
+  const visited = new Set();
+  const lineage = [];
+  function dfs(id) {
+    if (!id || visited.has(id)) return;
+    visited.add(id);
+    const p = paperById[id];
+    if (!p) return;
+    p.refs.forEach(ref => dfs(ref));
+    lineage.push(id);
+  }
+  dfs(paperId);
+  return lineage;
+}
+
+// Render
+const filtersEl = document.getElementById('filters');
+const timelineEl = document.getElementById('timeline');
+const searchEl = document.getElementById('search');
+const statsEl = document.getElementById('stats');
+const legendEl = document.getElementById('legend');
+const lineageBanner = document.getElementById('lineageBanner');
+const lineageTitle = document.getElementById('lineageTitle');
+const lineageDesc = document.getElementById('lineageDesc');
+const lineageFlow = document.getElementById('lineageFlow');
+const lineageClose = document.getElementById('lineageClose');
+
+let activeFilters = new Set();
+let activeLineage = null; // {paperId, ids: Set}
+
+// Legend
+legendEl.innerHTML = Object.entries(categories).map(([k,v])=>`<div class="legend-item"><div class="legend-dot" style="background:${v.color}"></div>${v.name}</div>`).join('');
+
+// Filter pills
+const allPill = document.createElement('div');
+allPill.className = 'pill active';
+allPill.textContent = '전체';
+allPill.onclick = ()=>{activeFilters.clear();document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));allPill.classList.add('active');render()};
+filtersEl.appendChild(allPill);
+
+Object.entries(categories).forEach(([k,v])=>{
+  const pill = document.createElement('div');
+  pill.className = 'pill';
+  pill.textContent = v.name;
+  pill.dataset.cat = k;
+  pill.onclick = ()=>{
+    if(activeFilters.has(k)){activeFilters.delete(k);pill.classList.remove('active')}
+    else{activeFilters.add(k);pill.classList.add('active');allPill.classList.remove('active')}
+    if(activeFilters.size===0) allPill.classList.add('active');
+    clearLineage();
+    render();
+  };
+  filtersEl.appendChild(pill);
+});
+
+searchEl.addEventListener('input', ()=>{clearLineage();render()});
+
+lineageClose.onclick = ()=>{clearLineage();render()};
+
+function clearLineage(){
+  activeLineage = null;
+  lineageBanner.classList.remove('active');
+}
+
+function showLineage(paperId, evt){
+  if(evt) evt.stopPropagation();
+  const ids = getLineage(paperId);
+  const p = paperById[paperId];
+  activeLineage = {paperId, ids: new Set(ids)};
+
+  lineageTitle.textContent = `연구 계보: ${p.t}`;
+  lineageDesc.textContent = `${p.y}년 이 논문까지 이어진 ${ids.length}편의 연구 흐름`;
+
+  lineageFlow.innerHTML = ids.map((id, i) => {
+    const pp = paperById[id];
+    const isSelected = id === paperId;
+    const catColor = categories[pp.cat]?.color || '#888';
+    return (i > 0 ? '<span class="lineage-flow-arrow">→</span>' : '') +
+      `<span class="lineage-flow-item${isSelected?' selected':''}" style="border-color:${catColor}${isSelected?'':'66'};${isSelected?'background:'+catColor+'22':''}" onclick="scrollToPaper('${id}')" title="${pp.t}">
+        <span class="lineage-step">${pp.y}</span> ${pp.t.length > 25 ? pp.t.substring(0,25)+'…' : pp.t}
+      </span>`;
+  }).join('');
+
+  lineageBanner.classList.add('active');
+  render();
+
+  // Scroll banner into view
+  lineageBanner.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function scrollToPaper(id){
+  const el = document.querySelector(`[data-paper-id="${id}"]`);
+  if(el){
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+    el.classList.add('expanded');
+  }
+}
+
+function render(){
+  const q = searchEl.value.toLowerCase();
+  const filtered = papers.filter(p=>{
+    if(activeFilters.size>0 && !activeFilters.has(p.cat)) return false;
+    if(q && !`${p.t} ${p.a} ${p.af} ${p.contribution} ${p.problem} ${p.impact}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  // Stats
+  statsEl.innerHTML = `
+    <div class="stat-card"><div class="stat-num">${filtered.length}</div><div class="stat-label">논문 수</div></div>
+    <div class="stat-card"><div class="stat-num">${filtered.length>0?filtered[0].y:'—'}–${filtered.length>0?filtered[filtered.length-1].y:'—'}</div><div class="stat-label">연도 범위</div></div>
+    <div class="stat-card"><div class="stat-num">${new Set(filtered.map(p=>p.cat)).size}</div><div class="stat-label">카테고리</div></div>
+  `;
+
+  // Group by era
+  const eras = [
+    {name:"태동기",range:[1940,1989],color:"#7c6cf0",desc:"뉴런 모델 → 역전파"},
+    {name:"기반 확립기",range:[1990,2011],color:"#4ecdc4",desc:"LSTM, SVM, DBN"},
+    {name:"딥러닝 혁명",range:[2012,2016],color:"#f7b731",desc:"AlexNet → AlphaGo"},
+    {name:"Transformer 시대",range:[2017,2019],color:"#ff6b6b",desc:"Attention → GPT-2"},
+    {name:"Foundation Model 시대",range:[2020,2022],color:"#a55eea",desc:"GPT-3, ViT, Diffusion"},
+    {name:"AGI를 향하여",range:[2023,2025],color:"#00d2d3",desc:"GPT-4, VLA, E2E AD"}
+  ];
+
+  let html = '';
+  eras.forEach(era=>{
+    const eraPapers = filtered.filter(p=>p.y>=era.range[0]&&p.y<=era.range[1]);
+    if(eraPapers.length===0) return;
+    html += `<div class="era-section">
+      <div class="era-header">
+        <div class="era-dot" style="background:${era.color}"></div>
+        <div class="era-title">${era.name} (${era.range[0]}–${era.range[1]})</div>
+        <div class="era-desc">${era.desc} · ${eraPapers.length}편</div>
+      </div>`;
+    eraPapers.forEach((p,i)=>{
+      const catInfo = categories[p.cat];
+      let lineageClass = '';
+      if(activeLineage){
+        if(p.id === activeLineage.paperId) lineageClass = ' lineage-selected';
+        else if(activeLineage.ids.has(p.id)) lineageClass = ' lineage-active';
+        else lineageClass = ' lineage-dimmed';
+      }
+      const hasRefs = p.refs && p.refs.length > 0;
+      const refsHtml = hasRefs ? p.refs.map(refId => {
+        const rp = paperById[refId];
+        return rp ? `<span class="lineage-flow-item" style="font-size:11px;padding:2px 8px;cursor:pointer" onclick="event.stopPropagation();showLineage('${refId}',event)">${rp.y} ${rp.t.length>30?rp.t.substring(0,30)+'…':rp.t}</span>` : '';
+      }).join(' ') : '';
+
+      html += `<div class="paper cat-${p.cat}${lineageClass}" data-paper-id="${p.id}" onclick="this.classList.toggle('expanded')">
+        <div class="paper-top">
+          <div class="paper-year">${p.y}</div>
+          <div class="paper-info">
+            <div class="paper-title">${p.t}</div>
+            <div class="paper-authors">${p.a}</div>
+            <div class="paper-affiliation">${p.af}</div>
+            <span class="paper-cat">${catInfo.name}</span>
+          </div>
+        </div>
+        <div class="paper-detail">
+          <div class="detail-section">
+            <div class="detail-label">당시 문제 (Problem)</div>
+            <div class="detail-text">${p.problem}</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">핵심 기여 (Contribution)</div>
+            <div class="detail-text">${p.contribution}</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">이후 영향 (Impact)</div>
+            <div class="detail-text">${p.impact}</div>
+          </div>
+          ${hasRefs ? `<div class="detail-section">
+            <div class="detail-label">선행 논문 (References)</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">${refsHtml}</div>
+          </div>` : ''}
+          <div class="paper-actions">
+            <a class="paper-link" href="${p.link}" target="_blank" rel="noopener" onclick="event.stopPropagation()">논문 원문 →</a>
+            <button class="lineage-btn" onclick="showLineage('${p.id}',event)">&#x1F50D; 연구 계보 보기</button>
+          </div>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+
+  if(filtered.length===0) html = '<div class="no-results">검색 결과가 없습니다.</div>';
+  timelineEl.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>
