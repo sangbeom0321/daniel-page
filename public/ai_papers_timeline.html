@@ -93,23 +93,23 @@ h1{font-size:28px;font-weight:700;text-align:center;margin:30px 0 8px;background
 .universe-title{font-size:14px;font-weight:700;color:#2a2d40;display:flex;align-items:center;gap:8px}
 .universe-title::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle,#ffffff,#6a5cf0);box-shadow:0 0 12px #6a5cf0aa}
 .universe-hint{font-size:11px;color:#8a8fa6}
-.universe-scroll{position:relative;overflow-x:auto;overflow-y:hidden;padding:6px 4px 14px}
-.universe-svg{display:block;width:100%;min-width:1100px;height:auto}
-.universe-svg .year-grid{stroke:#e6e8f0;stroke-width:1;stroke-dasharray:2 5}
-.universe-svg .year-label{font-size:14px;fill:#8a8fa6;font-family:'Pretendard',sans-serif;font-weight:600}
+.universe-scroll{position:relative;overflow-x:auto;overflow-y:hidden;padding:4px 4px 10px}
+.universe-svg{display:block;width:100%;min-width:1080px;height:auto}
+.universe-svg .year-grid{stroke:#e2e5f0;stroke-width:1;stroke-dasharray:2 5}
+.universe-svg .year-label{font-size:17px;fill:#7d8398;font-family:'Pretendard',sans-serif;font-weight:700}
 .universe-svg .branch-edge{fill:none;stroke-linecap:round;transition:all .25s}
-.universe-svg .branch-edge.primary{stroke-width:1.6;opacity:0.55}
-.universe-svg .branch-edge.secondary{stroke-width:0.9;opacity:0.18;stroke-dasharray:3 4}
-.universe-svg .branch-edge.highlight{stroke:#ef4f6b !important;stroke-width:2.4;opacity:0.95;stroke-dasharray:none}
+.universe-svg .branch-edge.primary{stroke-width:3;opacity:0.72}
+.universe-svg .branch-edge.secondary{stroke-width:1.6;opacity:0.32;stroke-dasharray:5 6}
+.universe-svg .branch-edge.highlight{stroke:#ef4f6b !important;stroke-width:4.5;opacity:0.95;stroke-dasharray:none}
 .universe-svg .paper-node{cursor:pointer;transition:all .2s}
 .universe-svg .paper-node circle{transition:all .2s}
-.universe-svg .paper-node:hover circle{r:7;filter:drop-shadow(0 0 8px currentColor)}
+.universe-svg .paper-node:hover circle{r:13;filter:drop-shadow(0 0 10px currentColor)}
 .universe-svg .paper-node.dimmed{opacity:0.13}
-.universe-svg .paper-node.lineage circle{r:5.5}
-.universe-svg .paper-node.selected circle{r:8;stroke:#ef4f6b;stroke-width:2.4}
-.universe-svg .paper-node.selected{filter:drop-shadow(0 0 10px #ef4f6baa)}
-.universe-svg .singularity{fill:url(#bigbang-grad);filter:drop-shadow(0 0 22px #6a5cf0cc)}
-.universe-svg .singularity-label{font-size:15px;font-weight:700;fill:#2a2d40;text-anchor:middle;font-family:'Pretendard',sans-serif}
+.universe-svg .paper-node.lineage circle{r:11}
+.universe-svg .paper-node.selected circle{r:14;stroke:#ef4f6b;stroke-width:3}
+.universe-svg .paper-node.selected{filter:drop-shadow(0 0 12px #ef4f6baa)}
+.universe-svg .singularity{fill:url(#bigbang-grad);filter:drop-shadow(0 0 26px #6a5cf0cc)}
+.universe-svg .singularity-label{font-size:19px;font-weight:800;fill:#2a2d40;text-anchor:middle;font-family:'Pretendard',sans-serif;letter-spacing:.02em}
 .universe-tooltip{position:fixed;pointer-events:none;background:#ffffff;border:1px solid #d8dbe6;border-radius:8px;padding:8px 12px;font-size:12px;color:#1f2233;box-shadow:0 6px 20px rgba(31,34,51,0.18);max-width:280px;opacity:0;transition:opacity .15s;z-index:1000;top:0;left:0}
 .universe-tooltip.show{opacity:1}
 .universe-tooltip .tt-year{font-weight:700;color:#6a5cf0;font-size:11px}
@@ -751,17 +751,19 @@ function positionTooltip(e){
   tt.style.top = y + 'px';
 }
 
-const VB_W = 1600;
-const VB_H = 1100;
-const MARGIN = {l:90, r:80, t:50, b:70};
+const VB_W = 1200;
+const MARGIN = {l:78, r:62, t:38, b:64};
 const Y_MIN = 1943;
 const Y_MAX = 2025;
 const PLOT_W = VB_W - MARGIN.l - MARGIN.r;
-const PLOT_H = VB_H - MARGIN.t - MARGIN.b;
+const SLOT_H = 22; // viewBox units per leaf row (drives dynamic VB_H)
 
 const paperPos = {};
 let primaryParentOf = {};
 let rootIds = [];
+let leafCount = 0;
+let dynamicVB_H = 900;
+let plotH = dynamicVB_H - MARGIN.t - MARGIN.b;
 let xForYear = (y) => MARGIN.l + (y - Y_MIN) / (Y_MAX - Y_MIN) * PLOT_W;
 
 function computePositions(){
@@ -821,14 +823,21 @@ function computePositions(){
     paperPos[id] = { yIndex: (Math.min(...ys) + Math.max(...ys)) / 2 };
   }
   rootIds.forEach(assignY);
+  leafCount = leafCounter;
+
+  // Size the canvas to the actual data so there is no leftover empty space:
+  // each leaf row gets exactly SLOT_H viewBox units, plus top/bottom margins.
+  dynamicVB_H = MARGIN.t + leafCount * SLOT_H + MARGIN.b;
+  plotH = dynamicVB_H - MARGIN.t - MARGIN.b;
+  universeSvg.setAttribute('viewBox', `0 0 ${VB_W} ${dynamicVB_H}`);
 
   // Convert to pixel coordinates: x by (non-linear) year, y by yIndex
-  const denom = Math.max(1, leafCounter - 1);
+  const denom = Math.max(1, leafCount - 1);
   papers.forEach(p => {
     const pos = paperPos[p.id];
     if (!pos) return;
     pos.x = xForYear(p.y);
-    pos.y = MARGIN.t + (pos.yIndex / denom) * PLOT_H;
+    pos.y = MARGIN.t + (pos.yIndex / denom) * plotH;
   });
 }
 
@@ -856,11 +865,11 @@ function renderUniverse(){
     const line = document.createElementNS(SVG_NS,'line');
     line.setAttribute('class','year-grid');
     line.setAttribute('x1',x); line.setAttribute('x2',x);
-    line.setAttribute('y1',MARGIN.t - 20); line.setAttribute('y2',VB_H - MARGIN.b + 18);
+    line.setAttribute('y1',MARGIN.t - 14); line.setAttribute('y2',dynamicVB_H - MARGIN.b + 14);
     axisGroup.appendChild(line);
     const lab = document.createElementNS(SVG_NS,'text');
     lab.setAttribute('class','year-label');
-    lab.setAttribute('x',x); lab.setAttribute('y',VB_H - MARGIN.b + 40);
+    lab.setAttribute('x',x); lab.setAttribute('y',dynamicVB_H - MARGIN.b + 38);
     lab.setAttribute('text-anchor','middle');
     lab.textContent = year;
     axisGroup.appendChild(lab);
@@ -909,12 +918,12 @@ function renderUniverse(){
     sing.setAttribute('class','singularity');
     sing.setAttribute('cx',rp.x);
     sing.setAttribute('cy',rp.y);
-    sing.setAttribute('r','16');
+    sing.setAttribute('r','22');
     universeSvg.appendChild(sing);
     const lbl = document.createElementNS(SVG_NS,'text');
     lbl.setAttribute('class','singularity-label');
     lbl.setAttribute('x',rp.x);
-    lbl.setAttribute('y',rp.y - 26);
+    lbl.setAttribute('y',rp.y - 32);
     lbl.textContent = '빅뱅 · 1943';
     universeSvg.appendChild(lbl);
   }
@@ -929,10 +938,10 @@ function renderUniverse(){
     g.setAttribute('transform',`translate(${pos.x},${pos.y})`);
     const color = categories[p.cat]?.color || '#888';
     const c = document.createElementNS(SVG_NS,'circle');
-    c.setAttribute('r','4.5');
+    c.setAttribute('r','9');
     c.setAttribute('fill',color);
     c.setAttribute('stroke','#ffffff');
-    c.setAttribute('stroke-width','1.2');
+    c.setAttribute('stroke-width','1.8');
     g.appendChild(c);
     g.style.color = color;
 
