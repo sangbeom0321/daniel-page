@@ -2,7 +2,7 @@
 const nextConfig = {
   output: "export",
   trailingSlash: true,
-  basePath: "/sangbum-homepage",
+  basePath: "/daniel-page",
   images: { unoptimized: true },
 };
 

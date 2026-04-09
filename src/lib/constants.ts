@@ -1,4 +1,4 @@
-export const BASE_PATH = "/sangbum-homepage";
+export const BASE_PATH = "/daniel-page";
 
 export const SITE_CONFIG = {
   name: "Sangbum Woo",
@@ -25,7 +25,7 @@ export const SITE_CONFIG = {
     orcid: "",
   },
   giscus: {
-    repo: "sangbeom0321/sangbum-homepage" as `${string}/${string}`,
+    repo: "sangbeom0321/daniel-page" as `${string}/${string}`,
     repoId: "",
     category: "Announcements",
     categoryId: "",
