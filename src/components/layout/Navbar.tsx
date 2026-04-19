@@ -35,7 +35,8 @@ export default function Navbar() {
           {/* Desktop nav links */}
           <ul className="hidden items-center gap-1 md:flex">
             {SITE_CONFIG.navItems.map((item) => {
-              const isExternal = item.href.endsWith(".html");
+              const isExternal =
+                item.href.endsWith(".html") || item.href.endsWith(".pdf");
               const isActive = isExternal
                 ? false
                 : item.href === "/"

@@ -12,7 +12,7 @@ export const SITE_CONFIG = {
     { label: "Home", href: "/" },
     { label: "Publications", href: "/publications" },
     { label: "Projects", href: "/projects" },
-    { label: "CV", href: "/cv" },
+    { label: "CV", href: "/files/cv.pdf" },
     { label: "Blog", href: "/blog" },
     { label: "AI Papers", href: "/ai_papers_timeline.html" },
   ],
